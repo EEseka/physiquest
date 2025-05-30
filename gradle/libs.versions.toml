@@ -8,25 +8,29 @@ androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.2.1"
 androidx-core-ktx = "1.16.0"
 androidx-espresso-core = "3.6.1"
-androidx-lifecycle = "2.8.4"
+androidx-lifecycle = "2.9.0"
 androidx-material = "1.12.0"
 androidx-testExt = "1.2.1"
 composeMultiplatform = "1.8.0"
 junit = "4.13.2"
 kotlin = "2.1.21"
 
-kotlinx-coroutines = "1.10.2"
+kotlinxDatetime = "0.6.0"
 navigationCompose = "2.8.0-alpha10"
 kotlinSerialization = "1.7.3"
 koin = "4.0.0"
 ktor = "3.0.0"
 coil3 = "3.0.0-rc02"
 ksp = "2.1.21-2.0.1"
-sqlite = "2.5.1"
-room = "2.7.1"
+sqlite = "2.5.0-alpha11"
+room = "2.7.0-alpha11"
+datastore = "1.1.7"
+kermit = "2.0.0"
 
-firebaseBom = "33.13.0"
+firebaseBom = "33.14.0"
 firebaseApp = "2.1.0"
+kmpauthGoogle = "2.3.1"
+ui = "0.2.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -41,9 +45,9 @@ androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayo
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 
 jetbrains-compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
@@ -69,12 +73,17 @@ coil-mp = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-app = { module = "dev.gitlive:firebase-app", version.ref = "firebaseApp" }
 gitlive-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseApp" }
 gitlive-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseApp" }
 gitlive-firebase-storage = { module = "dev.gitlive:firebase-storage", version.ref = "firebaseApp" }
+kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauthGoogle" }
+ui = { module = "com.attafitamim.krop:ui", version.ref = "ui" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
