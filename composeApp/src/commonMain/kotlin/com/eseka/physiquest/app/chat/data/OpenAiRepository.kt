@@ -228,7 +228,7 @@ class OpenAiRepository(
                 ),
                 ChatMessage(
                     role = ChatRole.User,
-                    content = "List 10 currently trending topics in physics or science that people are actively discussing today. Include recent discoveries, experiments, theories, and technology advancements. Exclude generic terms like app names, company names, or everyday searches. Provide only specific, timely topics in concise phrases without numbering or extra text."
+                    content = "List 10 currently trending topics in physics or science that people are actively discussing today. Include recent discoveries, experiments, theories, and technology advancements. Exclude generic terms like app names, company names, or everyday searches. Provide only specific, timely topics in concise phrases without numbering, links or extra text."
                 )
             )
             val chatCompletionRequest = ChatCompletionRequest(
