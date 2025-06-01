@@ -160,80 +160,89 @@ fun ChatDetailScreen(
                     },
                     title = {
                         val focusRequester = remember { FocusRequester() }
-                        var isTitleEditing by rememberSaveable { mutableStateOf(false) }
-                        if (isTitleEditing) {
-                            AlertDialog(
-                                title = { Text(stringResource(Res.string.rename_chat)) },
-                                text = {
-                                    OutlinedTextField(
-                                        value = state.chat.title,
-                                        onValueChange = { onTitleChanged(it) },
-                                        singleLine = true,
-                                        keyboardActions = KeyboardActions(
-                                            onDone = {
+                        if (state.isChatLoading) {
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp, 40.dp)
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .shimmerEffect(),
+                            )
+                        } else {
+                            var isTitleEditing by rememberSaveable { mutableStateOf(false) }
+                            if (isTitleEditing) {
+                                AlertDialog(
+                                    title = { Text(stringResource(Res.string.rename_chat)) },
+                                    text = {
+                                        OutlinedTextField(
+                                            value = state.chat.title,
+                                            onValueChange = { onTitleChanged(it) },
+                                            singleLine = true,
+                                            keyboardActions = KeyboardActions(
+                                                onDone = {
+                                                    onSaveTitleEdit()
+                                                    isTitleEditing = false
+                                                    focusManager.clearFocus()
+                                                }
+                                            ),
+                                            keyboardOptions = KeyboardOptions.Default.copy(
+                                                imeAction = ImeAction.Done
+                                            ),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .focusRequester(focusRequester),
+                                        )
+                                    },
+                                    onDismissRequest = {
+                                        isTitleEditing = false
+                                        focusManager.clearFocus()
+                                    },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
                                                 onSaveTitleEdit()
                                                 isTitleEditing = false
                                                 focusManager.clearFocus()
                                             }
-                                        ),
-                                        keyboardOptions = KeyboardOptions.Default.copy(
-                                            imeAction = ImeAction.Done
-                                        ),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .focusRequester(focusRequester),
+                                        ) {
+                                            Text(stringResource(Res.string.save))
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = {
+                                                isTitleEditing = false
+                                                focusManager.clearFocus()
+                                            }
+                                        ) {
+                                            Text(stringResource(Res.string.cancel))
+                                        }
+                                    }
+                                )
+                            } else {
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = state.chat.title,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.clickable {
+                                            focusManager.clearFocus()
+                                            isTitleEditing = true
+                                        }
                                     )
-                                },
-                                onDismissRequest = {
-                                    isTitleEditing = false
-                                    focusManager.clearFocus()
-                                },
-                                confirmButton = {
-                                    TextButton(
-                                        onClick = {
-                                            onSaveTitleEdit()
-                                            isTitleEditing = false
-                                            focusManager.clearFocus()
-                                        }
-                                    ) {
-                                        Text(stringResource(Res.string.save))
-                                    }
-                                },
-                                dismissButton = {
-                                    TextButton(
-                                        onClick = {
-                                            isTitleEditing = false
-                                            focusManager.clearFocus()
-                                        }
-                                    ) {
-                                        Text(stringResource(Res.string.cancel))
-                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = stringResource(
+                                            Res.string.created_at,
+                                            formatDate(state.chat.createdAt)
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
-                            )
-                        } else {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = state.chat.title,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.clickable {
-                                        focusManager.clearFocus()
-                                        isTitleEditing = true
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = stringResource(
-                                        Res.string.created_at,
-                                        formatDate(state.chat.createdAt)
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
                             }
                         }
                     }
