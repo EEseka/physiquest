@@ -75,7 +75,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+logger = { module = "com.diamondedge:logging", version.ref = "logging" }
 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-app = { module = "dev.gitlive:firebase-app", version.ref = "firebaseApp" }
