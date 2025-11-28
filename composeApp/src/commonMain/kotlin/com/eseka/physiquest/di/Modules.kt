@@ -11,6 +11,22 @@ import com.eseka.physiquest.app.chat.data.local.TrendingSearchDatabase
 import com.eseka.physiquest.app.chat.domain.AiDataSource
 import com.eseka.physiquest.app.chat.domain.ChatDatabase
 import com.eseka.physiquest.app.chat.presentation.ChatViewModel
+import com.eseka.physiquest.app.physics.data.network.RemoteAstronomyDataSource
+import com.eseka.physiquest.app.physics.data.repository.PhysicsCalculatorRepositoryImpl
+import com.eseka.physiquest.app.physics.domain.AstronomyRepository
+import com.eseka.physiquest.app.physics.domain.CalculateCircuitUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateElectricityUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateEnergyUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateFluidUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateKinematicsUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateMagnetismUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateProjectileMotionUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateRotationalMotionUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateSHMUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateThermodynamicsUseCase
+import com.eseka.physiquest.app.physics.domain.CalculateWaveUseCase
+import com.eseka.physiquest.app.physics.domain.PhysicsCalculatorRepo
+import com.eseka.physiquest.app.physics.presentation.PhysicsCalculatorViewModel
 import com.eseka.physiquest.app.settings.data.UserRepoImpl
 import com.eseka.physiquest.app.settings.domain.UserRepo
 import com.eseka.physiquest.app.settings.presentation.SettingsViewModel
@@ -27,6 +43,7 @@ import com.eseka.physiquest.authentication.presentation.signin.SignInViewModel
 import com.eseka.physiquest.authentication.presentation.signup.SignUpViewModel
 import com.eseka.physiquest.authentication.presentation.welcome.WelcomeViewModel
 import com.eseka.physiquest.core.data.firebase.FirebaseMediaStorage
+import com.eseka.physiquest.core.data.networking.HttpClientFactory
 import com.eseka.physiquest.core.domain.MediaStorage
 import com.eseka.physiquest.core.domain.validation.ValidateDisplayName
 import dev.gitlive.firebase.Firebase
@@ -47,12 +64,16 @@ val sharedModule = module {
     single { Firebase.storage }
     single { Firebase.firestore }
 
+    single { HttpClientFactory.create(get()) }
+
+    singleOf(::RemoteAstronomyDataSource).bind<AstronomyRepository>()
     singleOf(::FirebaseAuthRepositoryImpl).bind<UserAuthRepo>()
     singleOf(::FirebaseMediaStorage).bind<MediaStorage>()
     singleOf(::CheckFirstInstallDataSource).bind<CheckFirstInstallUseCase>()
     singleOf(::UserRepoImpl).bind<UserRepo>()
     singleOf(::OpenAiRepository).bind<AiDataSource>()
     singleOf(::FirestoreChatRepository).bind<ChatDatabase>()
+    singleOf(::PhysicsCalculatorRepositoryImpl).bind<PhysicsCalculatorRepo>()
     single {
         get<DatabaseFactory>().create()
             .setDriver(BundledSQLiteDriver())
@@ -69,9 +90,22 @@ val sharedModule = module {
     single { AuthEventBus() }
     single { MainEventBus() }
 
+    factory { CalculateProjectileMotionUseCase(get()) }
+    factory { CalculateSHMUseCase(get()) }
+    factory { CalculateCircuitUseCase(get()) }
+    factory { CalculateWaveUseCase(get()) }
+    factory { CalculateKinematicsUseCase(get()) }
+    factory { CalculateEnergyUseCase(get()) }
+    factory { CalculateFluidUseCase(get()) }
+    factory { CalculateRotationalMotionUseCase(get()) }
+    factory { CalculateThermodynamicsUseCase(get()) }
+    factory { CalculateMagnetismUseCase(get()) }
+    factory { CalculateElectricityUseCase(get()) }
+
     viewModelOf(::SignUpViewModel)
     viewModelOf(::SignInViewModel)
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ChatViewModel)
+    viewModelOf(::PhysicsCalculatorViewModel)
 }

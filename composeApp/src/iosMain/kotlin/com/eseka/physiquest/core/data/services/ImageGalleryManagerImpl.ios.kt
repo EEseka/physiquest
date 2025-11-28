@@ -1,9 +1,12 @@
 package com.eseka.physiquest.core.data.services
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.ImageGalleryManager
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import platform.Foundation.NSData
 import platform.Foundation.NSURL
 import platform.Foundation.dataWithContentsOfURL
@@ -36,54 +39,55 @@ actual class ImageGalleryManagerImpl : ImageGalleryManager {
 
                     else -> false
                 }
-                continuation.resume(granted)
+                if (continuation.isActive) {
+                    continuation.resume(granted)
+                }
             }
         }
 
     @OptIn(ExperimentalForeignApi::class)
     actual override suspend fun saveImageToGallery(imageUri: String): Result<Unit> =
-        suspendCancellableCoroutine { continuation ->
+        withContext(Dispatchers.IO) { // Switch to a background thread
             try {
-                // Download image data
                 val url = NSURL(string = imageUri)
+                // This is a blocking network call, so it MUST be on a background thread.
                 val data = NSData.dataWithContentsOfURL(url)
-
-                if (data == null) {
-                    continuation.resume(Result.failure(Exception("Failed to download image from URL")))
-                    return@suspendCancellableCoroutine
-                }
+                    ?: return@withContext Result.failure(Exception("Failed to download image from URL"))
 
                 val image = UIImage.imageWithData(data)
-                if (image == null) {
-                    continuation.resume(Result.failure(Exception("Failed to create image from data")))
-                    return@suspendCancellableCoroutine
-                }
+                    ?: return@withContext Result.failure(Exception("Failed to create image from data"))
 
-                // Save to Photos
-                PHPhotoLibrary.sharedPhotoLibrary().performChanges(
-                    changeBlock = {
+                // Bridge the callback-based Photos API to coroutines
+                suspendCancellableCoroutine { continuation ->
+                    PHPhotoLibrary.sharedPhotoLibrary().performChanges({
                         PHAssetChangeRequest.creationRequestForAssetFromImage(image)
-                    },
-                    completionHandler = { success, error ->
+                    }, completionHandler = { success, error ->
                         if (success) {
-                            Logger.i(tag = TAG, message = { "Image saved successfully to Photos" })
-                            continuation.resume(Result.success(Unit))
+                            log.i(tag = TAG, msg = { "Image saved successfully to Photos" })
+                            if (continuation.isActive) continuation.resume(Result.success(Unit))
                         } else {
                             val errorMessage = error?.localizedDescription() ?: "Unknown error"
-                            Logger.e(
+                            log.e(
                                 tag = TAG,
-                                message = { "Error saving image to Photos: $errorMessage" })
-                            continuation.resume(Result.failure(Exception(errorMessage)))
+                                msg = { "Error saving image to Photos: $errorMessage" })
+                            if (continuation.isActive) continuation.resume(
+                                Result.failure(
+                                    Exception(
+                                        errorMessage
+                                    )
+                                )
+                            )
                         }
-                    }
-                )
+                    })
+                }
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error saving image to gallery: ${e.message}" })
-                continuation.resume(Result.failure(e))
+                log.e(tag = TAG, msg = { "Error saving image to gallery: ${e.message}" })
+                Result.failure(e)
             }
         }
 
     private companion object {
         private const val TAG = "ImageGalleryManager"
+        val log = logging()
     }
 }

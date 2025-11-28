@@ -2,7 +2,7 @@ package com.eseka.physiquest.core.data.utils
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.utils.ImageUtils
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.UByteVar
@@ -53,7 +53,7 @@ actual class ImageUtilsImpl : ImageUtils {
             }
 
             if (data == null) {
-                Logger.e(tag = TAG, message = { "Failed to convert UIImage to data" })
+                log.e(tag = TAG, msg = { "Failed to convert UIImage to data" })
                 return@withContext null
             }
 
@@ -65,7 +65,7 @@ actual class ImageUtilsImpl : ImageUtils {
             ).firstOrNull() as? String
 
             if (documentsPath == null) {
-                Logger.e(tag = TAG, message = { "Failed to get documents directory" })
+                log.e(tag = TAG, msg = { "Failed to get documents directory" })
                 return@withContext null
             }
 
@@ -76,14 +76,14 @@ actual class ImageUtilsImpl : ImageUtils {
             val success = data.writeToFile(filePath, atomically = true)
 
             if (success) {
-                Logger.d(tag = TAG, message = { "Successfully saved cropped image to: $filePath" })
+                log.d(tag = TAG, msg = { "Successfully saved cropped image to: $filePath" })
                 filePath
             } else {
-                Logger.e(tag = TAG, message = { "Failed to write image data to file" })
+                log.e(tag = TAG, msg = { "Failed to write image data to file" })
                 null
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error converting ImageBitmap to URI: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error converting ImageBitmap to URI: ${e.message}" })
             null
         }
     }
@@ -157,5 +157,6 @@ actual class ImageUtilsImpl : ImageUtils {
 
     private companion object {
         private const val TAG = "ImageUtils"
+        val log = logging()
     }
 }

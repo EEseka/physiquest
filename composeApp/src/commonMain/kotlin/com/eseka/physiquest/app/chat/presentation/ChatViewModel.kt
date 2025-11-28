@@ -2,7 +2,7 @@ package com.eseka.physiquest.app.chat.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.app.MainEvent
 import com.eseka.physiquest.app.MainEventBus
 import com.eseka.physiquest.app.chat.domain.AiDataSource
@@ -288,7 +288,7 @@ class ChatViewModel(
                 .onError { error ->
                     _state.update { it.copy(selectedChat = it.selectedChat?.copy(isTrendingLoading = false)) }
                     mainEventBus.send(MainEvent.NetworkingError(error))
-                    Logger.e(tag = TAG, message = { "Error loading trending topics: $error" })
+                    log.e(tag = TAG, msg = { "Error loading trending topics: $error" })
                 }
         }
     }
@@ -299,11 +299,11 @@ class ChatViewModel(
         viewModelScope.launch {
             chatDatabase.saveChat(chat)
                 .onSuccess {
-                    Logger.i(tag = TAG, message = { "Chat saved successfully" })
+                    log.i(tag = TAG, msg = { "Chat saved successfully" })
                     getAllChats()
                 }
                 .onError { error ->
-                    Logger.e(tag = TAG, message = { "Error saving chat: $error" })
+                    log.e(tag = TAG, msg = { "Error saving chat: $error" })
                     mainEventBus.send(MainEvent.DatabaseError(error))
                 }
         }
@@ -436,7 +436,7 @@ class ChatViewModel(
             aiDataSource.transcribeAudio(audioPath)
                 .onSuccess { transcription ->
                     if (transcription.isBlank()) {
-                        Logger.e(tag = TAG, message = { "Transcription is empty" })
+                        log.e(tag = TAG, msg = { "Transcription is empty" })
                         _state.update {
                             it.copy(
                                 selectedChat = it.selectedChat?.copy(
@@ -534,7 +534,7 @@ class ChatViewModel(
                 }
                 .onError { error ->
                     mainEventBus.send(MainEvent.NetworkingError(error))
-                    Logger.e(tag = TAG, message = { "Error generating chat title: $error" })
+                    log.e(tag = TAG, msg = { "Error generating chat title: $error" })
                 }
         }
     }
@@ -577,5 +577,6 @@ class ChatViewModel(
         private const val TAG = "ChatViewModel"
         private const val MAX_IMAGE_SIZE = 1024 * 1024L // 1MB
         private const val MAX_MESSAGE_LENGTH = 4096
+        val log = logging()
     }
 }

@@ -1,6 +1,6 @@
 package com.eseka.physiquest.app.settings.data
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.app.settings.domain.UserRepo
 import com.eseka.physiquest.core.data.firebase.utils.safeFirebaseAuthCall
 import com.eseka.physiquest.core.data.firebase.utils.safeFirebaseStorageCall
@@ -47,10 +47,10 @@ class UserRepoImpl(
                     try {
                         user.reload()
                     } catch (e: Exception) {
-                        Logger.e(
+                        log.e(
                             tag = TAG,
-                            message = { "Failed to reload user: ${e.message}" },
-                            throwable = e
+                            msg = { "Failed to reload user: ${e.message}" },
+                            err = e
                         )
                         trySend(null)
                     }
@@ -95,9 +95,9 @@ class UserRepoImpl(
                         finalPhotoUrl = secureUrl
                     }
                     .onError { error ->
-                        Logger.e(
+                        log.e(
                             tag = TAG,
-                            message = { "Failed to upload profile image to Firebase Storage : $error" }
+                            msg = { "Failed to upload profile image to Firebase Storage : $error" }
                         )
                         Result.Error(FirebaseStorageError.IO_ERROR)
                     }
@@ -120,5 +120,6 @@ class UserRepoImpl(
     companion object {
         private const val PROFILE_PHOTO_STORAGE_PATH = "profile_pictures/"
         private const val TAG = "UserRepoImpl"
+        val log = logging()
     }
 }

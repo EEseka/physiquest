@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.authentication.domain.CheckFirstInstallUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -20,11 +20,13 @@ class CheckFirstInstallDataSource(private val prefs: DataStore<Preferences>) :
             val FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
             val ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
         }
+
+        val log = logging()
     }
 
     override suspend fun invoke(): Flow<Boolean> = prefs.data
         .catch { exception ->
-            Logger.e(tag = TAG, message = { "Error reading preferences" }, throwable = exception)
+            log.e(tag = TAG, msg = { "Error reading preferences" }, err = exception)
             emit(emptyPreferences())
         }
         .map { preferences ->

@@ -2,7 +2,7 @@ package com.eseka.physiquest.core.data.services
 
 import android.content.Context
 import android.net.Uri
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.FileManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,7 +27,7 @@ actual class FileManagerImpl : FileManager {
                 }
                 Uri.fromFile(file).toString()  // Return the URI of the saved file as string
             } catch (e: IOException) {
-                Logger.e(tag = TAG, message = { "Error saving image to cache" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error saving image to cache" }, err = e)
                 null
             }
         }
@@ -44,7 +44,7 @@ actual class FileManagerImpl : FileManager {
                     (taskToPerformAfterCreation as (File) -> Unit)(it)
                 }
             } catch (e: IOException) {
-                Logger.e(tag = TAG, message = { "Error creating file" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error creating file" }, err = e)
                 null
             }
         }
@@ -56,7 +56,7 @@ actual class FileManagerImpl : FileManager {
                 val file = File(context.cacheDir, fileName)
                 file.absolutePath
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error getting absolute path" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error getting absolute path" }, err = e)
                 null
             }
         }
@@ -68,7 +68,7 @@ actual class FileManagerImpl : FileManager {
                 val cacheDir = context.cacheDir
                 cacheDir.listFiles()?.forEach { it.delete() }
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error clearing cache" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error clearing cache" }, err = e)
             }
         }
     }
@@ -80,7 +80,7 @@ actual class FileManagerImpl : FileManager {
                     input.readBytes()
                 }
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error downloading image" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error downloading image" }, err = e)
                 null
             }
         }
@@ -88,5 +88,6 @@ actual class FileManagerImpl : FileManager {
 
     private companion object {
         private const val TAG = "FileManager"
+        val log = logging()
     }
 }

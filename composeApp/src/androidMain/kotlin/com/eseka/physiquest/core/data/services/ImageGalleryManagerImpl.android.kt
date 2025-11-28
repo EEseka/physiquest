@@ -4,16 +4,15 @@ import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.core.content.ContextCompat
-import co.touchlab.kermit.Logger
+import androidx.core.net.toUri
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.ImageGalleryManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
-import androidx.core.net.toUri
 
 actual class ImageGalleryManagerImpl(
     private val context: Context
@@ -84,15 +83,16 @@ actual class ImageGalleryManagerImpl(
                     contentResolver.update(savedImageUri, imageDetails, null, null)
                 }
 
-                Logger.i(tag = TAG, message = { "Image saved successfully to gallery" })
+                log.i(tag = TAG, msg = { "Image saved successfully to gallery" })
                 Result.success(Unit)
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error saving image to gallery: ${e.message}" })
+                log.e(tag = TAG, msg = { "Error saving image to gallery: ${e.message}" })
                 Result.failure(e)
             }
         }
 
     private companion object {
         private const val TAG = "ImageGalleryManager"
+        val log = logging()
     }
 }

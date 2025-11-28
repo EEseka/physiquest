@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.utils.ImageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -58,12 +58,13 @@ actual class ImageUtilsImpl(
                 FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
             uri.toString()
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error converting ImageBitmap to URI: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error converting ImageBitmap to URI: ${e.message}" })
             null
         }
     }
 
     private companion object {
         private const val TAG = "ImageUtils"
+        val log = logging()
     }
 }

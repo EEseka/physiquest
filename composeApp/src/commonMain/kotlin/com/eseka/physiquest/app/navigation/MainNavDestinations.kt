@@ -3,12 +3,15 @@ package com.eseka.physiquest.app.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eseka.physiquest.core.presentation.UiText
 import physiquest.composeapp.generated.resources.Res
 import physiquest.composeapp.generated.resources.chat
+import physiquest.composeapp.generated.resources.home
 import physiquest.composeapp.generated.resources.settings
 
 sealed class MainNavDestinations(
@@ -17,6 +20,13 @@ sealed class MainNavDestinations(
     val outlinedIcon: ImageVector? = null,
     val filledIcon: ImageVector? = null
 ) {
+    data object Home : MainNavDestinations(
+        "home",
+        UiText.StringResourceId(Res.string.home),
+        Icons.Outlined.Home,
+        Icons.Filled.Home
+    )
+
     data object Chat : MainNavDestinations(
         "chat",
         UiText.StringResourceId(Res.string.chat),

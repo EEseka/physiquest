@@ -9,11 +9,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import co.touchlab.kermit.Logger
 import com.attafitamim.krop.core.crop.CropError
 import com.attafitamim.krop.core.crop.CropResult
 import com.attafitamim.krop.core.crop.ImageCropper
 import com.attafitamim.krop.core.crop.crop
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.data.services.CameraGalleryManagerImpl
 import com.eseka.physiquest.core.data.utils.ImageUtilsImpl
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -52,6 +52,8 @@ actual fun CameraAndGalleryPermissionHandler(
     modifier: Modifier,
     onPermissionDenied: (String) -> Unit
 ) {
+    val log = logging()
+
     val scope = rememberCoroutineScope()
     val cameraGalleryManager = remember { CameraGalleryManagerImpl() }
     val imageUtils = remember { ImageUtilsImpl() }
@@ -72,42 +74,42 @@ actual fun CameraAndGalleryPermissionHandler(
 
                 val success = imageData.writeToFile(filePath, atomically = true)
                 if (success) {
-                    Logger.d(
+                    log.d(
                         tag = "CameraGalleryHandler",
-                        message = { "Saved image to: $filePath" })
+                        msg = { "Saved image to: $filePath" })
                     filePath
                 } else {
-                    Logger.e(
+                    log.e(
                         tag = "CameraGalleryHandler",
-                        message = { "Failed to write file to: $filePath" })
+                        msg = { "Failed to write file to: $filePath" })
                     null
                 }
             } else {
-                Logger.e(tag = "CameraGalleryHandler", message = { "Documents path is null" })
+                log.e(tag = "CameraGalleryHandler", msg = { "Documents path is null" })
                 null
             }
         } catch (e: Exception) {
-            Logger.e(
+            log.e(
                 tag = "CameraGalleryHandler",
-                message = { "Error saving image data: ${e.message}" })
+                msg = { "Error saving image data: ${e.message}" })
             null
         }
     }
 
     suspend fun cropImage(filePath: String, extension: String) {
         try {
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "Starting crop process for: $filePath" })
+                msg = { "Starting crop process for: $filePath" })
 
             changeIsCropping(true)
 
             // Try different approaches to create a valid NSURL
             val nsUrl = NSURL.fileURLWithPath(filePath)
 
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = {
+                msg = {
                     "NSURL created - Path: ${nsUrl.path}, " +
                             "Scheme: ${nsUrl.scheme}, " +
                             "AbsolutePath: ${nsUrl.absoluteString}, " +
@@ -118,28 +120,28 @@ actual fun CameraAndGalleryPermissionHandler(
             val fileExists =
                 platform.Foundation.NSFileManager.defaultManager.fileExistsAtPath(filePath)
             if (!fileExists) {
-                Logger.e(
+                log.e(
                     tag = "CameraGalleryHandler",
-                    message = { "File does not exist at path: $filePath" })
+                    msg = { "File does not exist at path: $filePath" })
                 changeIsCropping(false)
                 return
             }
 
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "File exists, attempting crop with NSURL" })
+                msg = { "File exists, attempting crop with NSURL" })
 
             val result = imageCropper.crop(nsUrl)
 
-            Logger.i(
+            log.i(
                 tag = "CameraGalleryHandler",
-                message = { "Crop result: $result" })
+                msg = { "Crop result: $result" })
 
             when (result) {
                 is CropResult.Success -> {
-                    Logger.d(
+                    log.d(
                         tag = "CameraGalleryHandler",
-                        message = { "Cropping successful" })
+                        msg = { "Cropping successful" })
 
                     val croppedUri = withContext(Dispatchers.Default) {
                         imageUtils.imageBitmapToUri(result.bitmap, filePath)
@@ -148,42 +150,42 @@ actual fun CameraAndGalleryPermissionHandler(
                     if (!scope.isActive) return
 
                     if (croppedUri != null) {
-                        Logger.d(
+                        log.d(
                             tag = "CameraGalleryHandler",
-                            message = { "Cropped image saved to: $croppedUri" })
+                            msg = { "Cropped image saved to: $croppedUri" })
                         onPhotoSelected(croppedUri, extension)
                     } else {
-                        Logger.e(
+                        log.e(
                             tag = "CameraGalleryHandler",
-                            message = { "Failed to save cropped image" })
+                            msg = { "Failed to save cropped image" })
                     }
                 }
 
                 CropResult.Cancelled -> {
-                    Logger.i(
+                    log.i(
                         tag = "CameraGalleryHandler",
-                        message = { "Cropping was cancelled by user" })
+                        msg = { "Cropping was cancelled by user" })
                     // Keep original image
                 }
 
                 is CropError -> {
-                    Logger.e(
+                    log.e(
                         tag = "CameraGalleryHandler",
-                        message = { "Error cropping image: $result" })
+                        msg = { "Error cropping image: $result" })
                     // Keep original image
                 }
             }
         } catch (e: kotlinx.coroutines.CancellationException) {
-            Logger.w(
+            log.w(
                 tag = "CameraGalleryHandler",
-                message = { "Cropping coroutine was cancelled" },
-                throwable = e
+                msg = { "Cropping coroutine was cancelled" },
+                err = e
             )
         } catch (e: Exception) {
-            Logger.e(
+            log.e(
                 tag = "CameraGalleryHandler",
-                message = { "Exception during cropping process: ${e.message}" },
-                throwable = e
+                msg = { "Exception during cropping process: ${e.message}" },
+                err = e
             )
         } finally {
             if (scope.isActive) {
@@ -203,7 +205,7 @@ actual fun CameraAndGalleryPermissionHandler(
                     didFinishPickingMediaWithInfo[UIImagePickerControllerOriginalImage] as? UIImage
 
                 if (image == null) {
-                    Logger.e(tag = "CameraGalleryHandler", message = { "No image selected" })
+                    log.e(tag = "CameraGalleryHandler", msg = { "No image selected" })
                     picker.dismissViewControllerAnimated(true, null)
                     isPickerFlowActive = false
                     return
@@ -220,9 +222,9 @@ actual fun CameraAndGalleryPermissionHandler(
                             }
 
                             if (imageData == null) {
-                                Logger.e(
+                                log.e(
                                     tag = "CameraGalleryHandler",
-                                    message = { "Failed to get image data" })
+                                    msg = { "Failed to get image data" })
                                 picker.dismissViewControllerAnimated(true, null)
                                 isPickerFlowActive = false
                                 return@launch
@@ -233,9 +235,9 @@ actual fun CameraAndGalleryPermissionHandler(
                             }
 
                             if (tempFilePath == null) {
-                                Logger.e(
+                                log.e(
                                     tag = "CameraGalleryHandler",
-                                    message = { "Failed to save image to temporary file" })
+                                    msg = { "Failed to save image to temporary file" })
                                 picker.dismissViewControllerAnimated(true, null)
                                 isPickerFlowActive = false
                                 return@launch
@@ -265,25 +267,25 @@ actual fun CameraAndGalleryPermissionHandler(
                             }
 
                         } catch (e: kotlinx.coroutines.CancellationException) {
-                            Logger.w(
+                            log.w(
                                 tag = "CameraGalleryHandler",
-                                message = { "Camera image processing coroutine cancelled" },
-                                throwable = e
+                                msg = { "Camera image processing coroutine cancelled" },
+                                err = e
                             )
                         } catch (e: Exception) {
-                            Logger.e(
+                            log.e(
                                 tag = "CameraGalleryHandler",
-                                message = { "Error in camera image processing: ${e.message}" },
-                                throwable = e
+                                msg = { "Error in camera image processing: ${e.message}" },
+                                err = e
                             )
                             if (scope.isActive) {
                                 picker.dismissViewControllerAnimated(true, null)
                             }
                         } finally {
                             isPickerFlowActive = false
-                            Logger.d(
+                            log.d(
                                 tag = "CameraGalleryHandler",
-                                message = { "Camera image processing flow finished" })
+                                msg = { "Camera image processing flow finished" })
                         }
                     }
                 } else { // Gallery selection - no cropping
@@ -292,18 +294,18 @@ actual fun CameraAndGalleryPermissionHandler(
                         try {
                             val imageData = UIImageJPEGRepresentation(image, 0.9)
                             if (imageData == null) {
-                                Logger.e(
+                                log.e(
                                     tag = "CameraGalleryHandler",
-                                    message = { "Failed to get image data for gallery image" })
+                                    msg = { "Failed to get image data for gallery image" })
                                 isPickerFlowActive = false
                                 return@launch
                             }
 
                             val galleryTempFilePath = saveImageDataToTemp(imageData, "jpg")
                             if (galleryTempFilePath == null) {
-                                Logger.e(
+                                log.e(
                                     tag = "CameraGalleryHandler",
-                                    message = { "Failed to save gallery image to temporary file" })
+                                    msg = { "Failed to save gallery image to temporary file" })
                                 isPickerFlowActive = false
                                 return@launch
                             }
@@ -313,16 +315,16 @@ actual fun CameraAndGalleryPermissionHandler(
                                 onPhotoSelected(galleryTempFilePath, "jpg")
                             }
                         } catch (e: Exception) {
-                            Logger.e(
+                            log.e(
                                 tag = "CameraGalleryHandler",
-                                message = { "Error processing gallery image: ${e.message}" },
-                                throwable = e
+                                msg = { "Error processing gallery image: ${e.message}" },
+                                err = e
                             )
                         } finally {
                             isPickerFlowActive = false
-                            Logger.d(
+                            log.d(
                                 tag = "CameraGalleryHandler",
-                                message = { "Gallery processing flow finished" })
+                                msg = { "Gallery processing flow finished" })
                         }
                     }
                 }
@@ -331,22 +333,22 @@ actual fun CameraAndGalleryPermissionHandler(
             override fun imagePickerControllerDidCancel(picker: UIImagePickerController) {
                 picker.dismissViewControllerAnimated(true, null)
                 isPickerFlowActive = false
-                Logger.d(tag = "CameraGalleryHandler", message = { "Image picker cancelled" })
+                log.d(tag = "CameraGalleryHandler", msg = { "Image picker cancelled" })
             }
         }
     }
 
     fun presentImagePicker(sourceType: UIImagePickerControllerSourceType) {
         if (isPickerFlowActive) {
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "Image picker flow already active, ignoring request" })
+                msg = { "Image picker flow already active, ignoring request" })
             return
         }
         isPickerFlowActive = true
-        Logger.d(
+        log.d(
             tag = "CameraGalleryHandler",
-            message = { "Starting image picker flow" })
+            msg = { "Starting image picker flow" })
 
         val picker = UIImagePickerController()
         picker.sourceType = sourceType
@@ -361,16 +363,16 @@ actual fun CameraAndGalleryPermissionHandler(
         if (rootViewController != null) {
             rootViewController.presentViewController(picker, animated = true, completion = null)
         } else {
-            Logger.e(tag = "CameraGalleryHandler", message = { "Root view controller is null" })
+            log.e(tag = "CameraGalleryHandler", msg = { "Root view controller is null" })
             isPickerFlowActive = false
         }
     }
 
     suspend fun checkAndLaunch(isCamera: Boolean) {
         if (isPickerFlowActive) {
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "Already processing image, ignoring ${if (isCamera) "camera" else "gallery"} request" })
+                msg = { "Already processing image, ignoring ${if (isCamera) "camera" else "gallery"} request" })
             return
         }
 
@@ -392,25 +394,25 @@ actual fun CameraAndGalleryPermissionHandler(
             typeString = "Gallery"
         }
 
-        Logger.d(tag = "CameraGalleryHandler", message = { "Checking $typeString permission" })
+        log.d(tag = "CameraGalleryHandler", msg = { "Checking $typeString permission" })
         if (hasPermissionAlready) {
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "$typeString permission granted, launching $typeString" })
+                msg = { "$typeString permission granted, launching $typeString" })
             presentImagePicker(sourceType)
         } else {
-            Logger.d(
+            log.d(
                 tag = "CameraGalleryHandler",
-                message = { "Requesting $typeString permission" })
+                msg = { "Requesting $typeString permission" })
             if (requestPermissionFunction()) {
-                Logger.d(
+                log.d(
                     tag = "CameraGalleryHandler",
-                    message = { "$typeString permission granted after request, launching $typeString" })
+                    msg = { "$typeString permission granted after request, launching $typeString" })
                 presentImagePicker(sourceType)
             } else {
-                Logger.e(
+                log.e(
                     tag = "CameraGalleryHandler",
-                    message = { "$typeString permission denied" })
+                    msg = { "$typeString permission denied" })
                 onPermissionDenied("$typeString permission denied")
             }
         }

@@ -1,6 +1,6 @@
 package com.eseka.physiquest.app.chat.data
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.app.chat.data.mappers.toChatSummary
 import com.eseka.physiquest.app.chat.domain.ChatDatabase
 import com.eseka.physiquest.app.chat.domain.models.Chat
@@ -56,10 +56,10 @@ class FirestoreChatRepository(
                     try {
                         user.reload()
                     } catch (e: Exception) {
-                        Logger.e(
+                        log.e(
                             tag = TAG,
-                            message = { "Failed to reload user: ${e.message}" },
-                            throwable = e
+                            msg = { "Failed to reload user: ${e.message}" },
+                            err = e
                         )
                         trySend(null)
                     }
@@ -171,9 +171,9 @@ class FirestoreChatRepository(
                         .onSuccess { secureUrl ->
                             image = secureUrl
                         }.onError { error ->
-                            Logger.e(
+                            log.e(
                                 tag = TAG,
-                                message = { "Failed to get image from Firebase Storage: $error" })
+                                msg = { "Failed to get image from Firebase Storage: $error" })
                         }
                 }
 
@@ -230,14 +230,14 @@ class FirestoreChatRepository(
                 "${CHAT_IMAGE_STORAGE_PATH_START}${currentUserId!!}/$chatId${CHAT_IMAGE_STORAGE_PATH_END}"
             storage.deleteAllPictures(chatImagesPath)
                 .onSuccess {
-                    Logger.i(
+                    log.i(
                         tag = TAG,
-                        message = { "Successfully deleted all images for chat: $chatId" })
+                        msg = { "Successfully deleted all images for chat: $chatId" })
                 }
                 .onError { error ->
-                    Logger.e(
+                    log.e(
                         tag = TAG,
-                        message = { "Error deleting images for chat $chatId: $error" })
+                        msg = { "Error deleting images for chat $chatId: $error" })
                     return@safeFirebaseStorageCall Result.Error(FirebaseStorageError.IO_ERROR)
                 }
         }
@@ -270,9 +270,9 @@ class FirestoreChatRepository(
                     .onSuccess { secureUrl ->
                         finalImageUrl = secureUrl
                     }.onError { error ->
-                        Logger.e(
+                        log.e(
                             tag = TAG,
-                            message = { "Failed to upload image to Firebase Storage: $error" })
+                            msg = { "Failed to upload image to Firebase Storage: $error" })
                         Result.Error(FirebaseStorageError.IO_ERROR)
                     }
             }
@@ -284,6 +284,7 @@ class FirestoreChatRepository(
         private const val TAG = "FirestoreChatRepository"
         private const val CHAT_IMAGE_STORAGE_PATH_START = "chats/"
         private const val CHAT_IMAGE_STORAGE_PATH_END = "/images"
+        val log = logging()
     }
 }
 

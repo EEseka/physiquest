@@ -8,7 +8,7 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.CameraGalleryManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -58,10 +58,10 @@ actual class CameraGalleryManagerImpl(
                 context.cacheDir
             )
 
-            Logger.d(tag = TAG, message = { "Created temp file: ${tempFile.absolutePath}" })
+            log.d(tag = TAG, msg = { "Created temp file: ${tempFile.absolutePath}" })
 
             val authority = "${context.packageName}.fileprovider"
-            Logger.d(tag = TAG, message = { "Using authority: $authority" })
+            log.d(tag = TAG, msg = { "Using authority: $authority" })
 
             val uri = FileProvider.getUriForFile(
                 context,
@@ -69,11 +69,11 @@ actual class CameraGalleryManagerImpl(
                 tempFile
             )
 
-            Logger.d(tag = TAG, message = { "Created URI: $uri" })
+            log.d(tag = TAG, msg = { "Created URI: $uri" })
             uri.toString()
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error creating temp photo URI: ${e.message}" })
-            Logger.e(tag = TAG, throwable = e, message = { "Stack trace:" })
+            log.e(tag = TAG, msg = { "Error creating temp photo URI: ${e.message}" })
+            log.e(tag = TAG, err = e, msg = { "Stack trace:" })
             null
         }
     }
@@ -82,10 +82,10 @@ actual class CameraGalleryManagerImpl(
         return try {
             val uri = uriString.toUri()
             val mimeType = context.contentResolver.getType(uri)
-            Logger.d(tag = TAG, message = { "MIME type for $uriString: $mimeType" })
+            log.d(tag = TAG, msg = { "MIME type for $uriString: $mimeType" })
             mimeType
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error getting MIME type: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error getting MIME type: ${e.message}" })
             null
         }
     }
@@ -96,5 +96,6 @@ actual class CameraGalleryManagerImpl(
 
     private companion object {
         private const val TAG = "CameraGalleryManager"
+        val log = logging()
     }
 }

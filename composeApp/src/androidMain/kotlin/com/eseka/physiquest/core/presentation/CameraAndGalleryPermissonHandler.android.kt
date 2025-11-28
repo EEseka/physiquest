@@ -17,11 +17,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
-import co.touchlab.kermit.Logger
 import com.attafitamim.krop.core.crop.CropError
 import com.attafitamim.krop.core.crop.CropResult
 import com.attafitamim.krop.core.crop.ImageCropper
 import com.attafitamim.krop.core.crop.crop
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.data.services.CameraGalleryManagerImpl
 import com.eseka.physiquest.core.data.utils.ImageUtilsImpl
 import kotlinx.coroutines.launch
@@ -41,6 +41,7 @@ actual fun CameraAndGalleryPermissionHandler(
     modifier: Modifier,
     onPermissionDenied: (String) -> Unit
 ) {
+    val log = logging()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val cameraGalleryManager = remember { CameraGalleryManagerImpl(context) }
@@ -85,9 +86,9 @@ actual fun CameraAndGalleryPermissionHandler(
 
                         is CropError -> {
                             changeIsCropping(false)
-                            Logger.e(
+                            log.e(
                                 tag = "CameraGalleryHandler",
-                                message = { "Error cropping image: $result" }
+                                msg = { "Error cropping image: $result" }
                             )
                         }
 
@@ -108,9 +109,9 @@ actual fun CameraAndGalleryPermissionHandler(
                     }
                 } catch (e: Exception) {
                     changeIsCropping(false)
-                    Logger.e(
+                    log.e(
                         tag = "CameraGalleryHandler",
-                        message = { "Error during cropping process: ${e.message}" }
+                        msg = { "Error during cropping process: ${e.message}" }
                     )
                 }
             }

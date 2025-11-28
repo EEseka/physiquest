@@ -2,7 +2,7 @@ package com.eseka.physiquest.authentication.presentation.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.authentication.domain.UserAuthRepo
 import com.eseka.physiquest.authentication.domain.validation.ValidateEmail
 import com.eseka.physiquest.authentication.domain.validation.ValidatePassword
@@ -189,7 +189,7 @@ class SignUpViewModel(
                     }
                 }
                 .onError { error ->
-                    Logger.w(tag = TAG, message = { "AuthError reloading user : $error" })
+                    log.w(tag = TAG, msg = { "AuthError reloading user : $error" })
                 }
         }
     }
@@ -256,5 +256,6 @@ class SignUpViewModel(
         private const val TAG = "SignUpViewModel"
         private const val MAX_IMAGE_SIZE = 256 * 1024L // 256KB
         private const val PHOTO_FILE_NAME = "compressed_profile_photo"
+        val log = logging()
     }
 }

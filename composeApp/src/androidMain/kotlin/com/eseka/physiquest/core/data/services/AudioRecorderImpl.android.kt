@@ -3,7 +3,7 @@ package com.eseka.physiquest.core.data.services
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.AudioRecorder
 import java.io.File
 import java.io.FileOutputStream
@@ -38,7 +38,7 @@ actual class AudioRecorderImpl : AudioRecorder {
                 recorder = this
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error starting audio recording: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error starting audio recording: ${e.message}" })
         }
     }
 
@@ -51,11 +51,12 @@ actual class AudioRecorderImpl : AudioRecorder {
             }
             recorder = null
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error stopping audio recording: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error stopping audio recording: ${e.message}" })
         }
     }
 
     private companion object {
         private const val TAG = "AudioRecorder"
+        val log = logging()
     }
 }

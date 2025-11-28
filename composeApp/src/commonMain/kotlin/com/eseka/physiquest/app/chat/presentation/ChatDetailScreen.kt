@@ -89,7 +89,9 @@ fun ChatDetailScreen(
     stopAudioRecording: () -> Unit,
     onCancelAudioRecording: () -> Unit,
     onBackPressed: () -> Unit,
-    onSendMessage: () -> Unit
+    onSendMessage: () -> Unit,
+    onImageSaveComplete: () -> Unit,
+    onImageSaveError: (String) -> Unit,
 ) {
     if (chatState == null) {
         val infiniteTransition = rememberInfiniteTransition(label = "glow")
@@ -332,7 +334,9 @@ fun ChatDetailScreen(
                                     onEditMessageClicked(it)
                                     isEditingMessage = true
                                     messageToEditID = it
-                                }
+                                },
+                                onImageSaveComplete = onImageSaveComplete,
+                                onImageSaveError = onImageSaveError
                             )
                         }
                         if (state.isTyping) {

@@ -3,7 +3,6 @@ package com.eseka.physiquest.core.presentation
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Icon
@@ -23,10 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.eseka.physiquest.core.data.services.ImageGalleryManagerImpl
 import kotlinx.coroutines.launch
-import physiquest.composeapp.generated.resources.Res
-import physiquest.composeapp.generated.resources.error_saving_image
-import physiquest.composeapp.generated.resources.image_saved_successfully
-import physiquest.composeapp.generated.resources.permission_required_to_save_image
 
 @Composable
 actual fun SaveImageToGalleryHandler(
@@ -40,99 +35,58 @@ actual fun SaveImageToGalleryHandler(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val galleryManager = remember { ImageGalleryManagerImpl(context) }
-    var savePermissionRequested by rememberSaveable { mutableStateOf(false) }
+    var requestPermissionTrigger by rememberSaveable { mutableStateOf(false) }
 
-    val imageSavedSuccessfullyString =
-        UiText.StringResourceId(Res.string.image_saved_successfully).asString()
-    val errorSavingImageString = UiText.StringResourceId(Res.string.error_saving_image).asString()
-    val permissionRequiredString =
-        UiText.StringResourceId(Res.string.permission_required_to_save_image).asString()
-
-    // Permission launcher for Android 9 and below
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        savePermissionRequested = false
         if (isGranted) {
+            // Permission granted, now perform the save
             scope.launch {
                 onSaveStarted()
                 galleryManager.saveImageToGallery(imageUri)
-                    .onSuccess {
-                        Toast.makeText(
-                            context,
-                            imageSavedSuccessfullyString,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        onSaveComplete()
-                    }
-                    .onFailure { e ->
-                        Toast.makeText(context, errorSavingImageString, Toast.LENGTH_SHORT).show()
-                        onError(e.message ?: "Unknown error")
-                        onSaveComplete()
-                    }
+                    .onSuccess { onSaveComplete() }
+                    .onFailure { e -> onError(e.message ?: "Unknown error saving image") }
             }
         } else {
-            Toast.makeText(
-                context,
-                permissionRequiredString,
-                Toast.LENGTH_SHORT
-            ).show()
-            onError("Permission denied")
-            onSaveComplete()
+            onError("Permission denied to save image.")
         }
-    }
-
-    suspend fun performSave() {
-        onSaveStarted()
-        galleryManager.saveImageToGallery(imageUri)
-            .onSuccess {
-                Toast.makeText(
-                    context,
-                    imageSavedSuccessfullyString,
-                    Toast.LENGTH_SHORT
-                ).show()
-                onSaveComplete()
-            }
-            .onFailure { e ->
-                Toast.makeText(context, errorSavingImageString, Toast.LENGTH_SHORT).show()
-                onError(e.message ?: "Unknown error")
-                onSaveComplete()
-            }
     }
 
     IconButton(
         onClick = {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                when (PackageManager.PERMISSION_GRANTED) {
+            val hasPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
                     ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) -> {
-                        scope.launch { performSave() }
-                    }
+                    ) == PackageManager.PERMISSION_GRANTED
 
-                    else -> {
-                        savePermissionRequested = true
-                    }
+            if (hasPermission) {
+                scope.launch {
+                    onSaveStarted()
+                    galleryManager.saveImageToGallery(imageUri)
+                        .onSuccess { onSaveComplete() }
+                        .onFailure { e -> onError(e.message ?: "Unknown error saving image") }
                 }
             } else {
-                // Android 10 and above don't need permission
-                scope.launch { performSave() }
+                // Trigger the permission request
+                requestPermissionTrigger = true
             }
         },
         modifier = modifier
     ) {
         Icon(
             imageVector = saveIcon,
-            contentDescription = null,
+            contentDescription = "Save Image", // Added for accessibility
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
     }
 
-    // Permission Request Trigger
-    LaunchedEffect(savePermissionRequested) {
-        if (savePermissionRequested) {
+    // A side-effect to launch the permission request when triggered
+    if (requestPermissionTrigger) {
+        LaunchedEffect(Unit) {
             permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestPermissionTrigger = false // Reset trigger
         }
     }
 }

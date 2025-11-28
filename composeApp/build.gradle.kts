@@ -34,6 +34,9 @@ abstract class GenerateBuildConfigTask : DefaultTask() {
     @get:Input
     abstract val openAiApiKey: Property<String>
 
+    @get:Input
+    abstract val nasaApiKey: Property<String>
+
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -49,6 +52,7 @@ abstract class GenerateBuildConfigTask : DefaultTask() {
             object BuildConfig {
                 const val GEMINI_API_KEY = "${geminiApiKey.get()}"
                 const val OPENAI_API_KEY = "${openAiApiKey.get()}"
+                const val NASA_API_KEY = "${nasaApiKey.get()}"
             }
             """.trimIndent()
         )
@@ -58,6 +62,7 @@ abstract class GenerateBuildConfigTask : DefaultTask() {
 val generateBuildConfig = tasks.register<GenerateBuildConfigTask>("generateBuildConfig") {
     geminiApiKey.set(getProperty("GEMINI_API_KEY"))
     openAiApiKey.set(getProperty("OPENAI_API_KEY"))
+    nasaApiKey.set(getProperty("NASA_API_KEY"))
     outputDir.set(layout.buildDirectory.map {
         it.dir("generated/source/buildConfig/commonMain/kotlin/com/eseka/physiquest")
     })
@@ -127,7 +132,7 @@ kotlin {
             api(libs.datastore.preferences)
             api(libs.datastore)
             implementation(libs.kotlinx.datetime)
-            implementation(libs.kermit) // For logging
+            api(libs.logger) // For logging
 
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
@@ -145,6 +150,9 @@ kotlin {
             implementation(project.dependencies.platform("com.aallam.openai:openai-client-bom:4.0.1"))
             implementation("com.aallam.openai:openai-client")
             runtimeOnly("io.ktor:ktor-client-okhttp")
+
+            // For LaTeX rendering in WebView
+            implementation("io.github.kevinnzou:compose-webview-multiplatform:2.0.0")
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)

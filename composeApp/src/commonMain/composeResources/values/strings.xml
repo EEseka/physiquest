@@ -178,4 +178,18 @@
     <string name="recording">Recording audio...</string>
     <string name="search">Search</string>
     <string name="reason">Reason</string>
+    <string name="projectile_motion">Projectile Motion</string>
+    <string name="simple_harmonic_motion">Simple Harmonic Motion</string>
+    <string name="circuit_analysis">Circuit Analysis</string>
+    <string name="wave_physics">Wave Physics</string>
+    <string name="kinematics">Kinematics</string>
+    <string name="energy_calculations">Energy Calculations</string>
+    <string name="fluid_mechanics">Fluid Mechanics</string>
+    <string name="rotational_motion">Rotational Motion</string>
+    <string name="thermodynamics">Thermodynamics</string>
+    <string name="magnetism">Magnetism</string>
+    <string name="electricity">Electricity</string>
+    <string name="invalid_input_values">Invalid input values. Please check your entries and try again.</string>
+    <string name="physics_calculator">Physics Calculator</string>
+    <string name="select_calculation_type">Select Calculation Type</string>
 </resources>

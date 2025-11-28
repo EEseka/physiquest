@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.firebase.utils
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.utils.FirebaseFirestoreError
 import com.eseka.physiquest.core.domain.utils.Result
 import dev.gitlive.firebase.FirebaseNetworkException
@@ -11,7 +11,7 @@ import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 
 private const val TAG = "safeFirebaseFirestoreCall"
-
+private val log = logging()
 suspend fun <T> safeFirebaseFirestoreCall(execute: suspend () -> T): Result<T, FirebaseFirestoreError> {
     return try {
         val result = execute()
@@ -22,7 +22,7 @@ suspend fun <T> safeFirebaseFirestoreCall(execute: suspend () -> T): Result<T, F
         Result.Error(FirebaseFirestoreError.NETWORK_ERROR)
     } catch (e: Exception) {
         coroutineContext.ensureActive()
-        Logger.e(tag = TAG, message = { "An unexpected error occurred" }, throwable = e)
+        log.e(tag = TAG, msg = { "An unexpected error occurred" }, err = e)
         Result.Error(FirebaseFirestoreError.UNKNOWN)
     }
 }
@@ -46,7 +46,7 @@ private fun mapFirestoreException(e: FirebaseFirestoreException): FirebaseFirest
         FirestoreExceptionCode.DATA_LOSS -> FirebaseFirestoreError.DATA_LOSS
         FirestoreExceptionCode.UNAUTHENTICATED -> FirebaseFirestoreError.UNAUTHENTICATED
         else -> {
-            Logger.w(tag = TAG, message = { "Unhandled Firestore error code: ${e.code}" })
+            log.w(tag = TAG, msg = { "Unhandled Firestore error code: ${e.code}" })
             FirebaseFirestoreError.UNKNOWN
         }
     }

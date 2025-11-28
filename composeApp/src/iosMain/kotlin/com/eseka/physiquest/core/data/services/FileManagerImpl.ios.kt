@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.services
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.FileManager
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -44,9 +44,9 @@ actual class FileManagerImpl : FileManager {
                     null
                 }
             } catch (e: Exception) {
-                Logger.e(
+                log.e(
                     tag = TAG,
-                    message = { "Error saving image to cache: ${e.message ?: "Unknown error"}" })
+                    msg = { "Error saving image to cache: ${e.message ?: "Unknown error"}" })
                 null
             }
         }
@@ -70,9 +70,9 @@ actual class FileManagerImpl : FileManager {
 
                 return@withContext fileURL
             } catch (e: Exception) {
-                Logger.e(
+                log.e(
                     tag = TAG,
-                    message = { "Error creating file: ${e.message ?: "Unknown error"}" })
+                    msg = { "Error creating file: ${e.message ?: "Unknown error"}" })
                 null
             }
         }
@@ -85,7 +85,7 @@ actual class FileManagerImpl : FileManager {
                 val fileURL = cacheDir.URLByAppendingPathComponent(fileName)
                 fileURL?.path
             } catch (e: Exception) {
-                Logger.e(tag = TAG, message = { "Error getting absolute path" }, throwable = e)
+                log.e(tag = TAG, msg = { "Error getting absolute path" }, err = e)
                 null
             }
         }
@@ -107,13 +107,13 @@ actual class FileManagerImpl : FileManager {
                     try {
                         fileManager.removeItemAtPath(filePath, null)
                     } catch (e: Exception) {
-                        Logger.e(tag = TAG, message = { "Failed to delete file: $filePath" })
+                        log.e(tag = TAG, msg = { "Failed to delete file: $filePath" })
                     }
                 }
             } catch (e: Exception) {
-                Logger.e(
+                log.e(
                     tag = TAG,
-                    message = { "Error clearing cache: ${e.message ?: "Unknown error"}" })
+                    msg = { "Error clearing cache: ${e.message ?: "Unknown error"}" })
             }
         }
     }
@@ -125,9 +125,9 @@ actual class FileManagerImpl : FileManager {
                 val data = NSData.dataWithContentsOfURL(url) ?: return@withContext null
                 data.toByteArray()
             } catch (e: Exception) {
-                Logger.e(
+                log.e(
                     tag = TAG,
-                    message = { "Error downloading image: ${e.message ?: "Unknown error"}" })
+                    msg = { "Error downloading image: ${e.message ?: "Unknown error"}" })
                 null
             }
         }
@@ -135,6 +135,7 @@ actual class FileManagerImpl : FileManager {
 
     private companion object {
         private const val TAG = "FileManager"
+        val log = logging()
     }
 }
 

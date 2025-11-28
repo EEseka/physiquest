@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.services
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.AudioRecorder
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -51,9 +51,9 @@ actual class AudioRecorderImpl : AudioRecorder {
 
                 val error = recorderErrorPtr.value
                 if (error != null) {
-                    Logger.e(
+                    log.e(
                         tag = TAG,
-                        message = { "Error creating audio recorder: ${error.localizedDescription()}" })
+                        msg = { "Error creating audio recorder: ${error.localizedDescription()}" })
                     return@memScoped
                 }
 
@@ -61,7 +61,7 @@ actual class AudioRecorderImpl : AudioRecorder {
                 audioRecorder?.record()
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error starting audio recording: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error starting audio recording: ${e.message}" })
         }
     }
 
@@ -75,11 +75,12 @@ actual class AudioRecorderImpl : AudioRecorder {
             }
             audioRecorder = null
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error stopping audio recording: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error stopping audio recording: ${e.message}" })
         }
     }
 
     private companion object {
         private const val TAG = "AudioRecorder"
+        val log = logging()
     }
 }

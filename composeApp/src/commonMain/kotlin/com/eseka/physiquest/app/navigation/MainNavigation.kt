@@ -39,6 +39,9 @@ import com.eseka.physiquest.app.chat.presentation.ChatDetailScreen
 import com.eseka.physiquest.app.chat.presentation.ChatEvents
 import com.eseka.physiquest.app.chat.presentation.ChatListScreen
 import com.eseka.physiquest.app.chat.presentation.ChatViewModel
+import com.eseka.physiquest.app.physics.presentation.PhysicsCalculatorEvents
+import com.eseka.physiquest.app.physics.presentation.PhysicsCalculatorScreen
+import com.eseka.physiquest.app.physics.presentation.PhysicsCalculatorViewModel
 import com.eseka.physiquest.app.settings.presentation.SettingsEvents
 import com.eseka.physiquest.app.settings.presentation.SettingsScreen
 import com.eseka.physiquest.app.settings.presentation.SettingsViewModel
@@ -53,6 +56,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import physiquest.composeapp.generated.resources.Res
 import physiquest.composeapp.generated.resources.chats
+import physiquest.composeapp.generated.resources.home
 import physiquest.composeapp.generated.resources.new_chat
 import physiquest.composeapp.generated.resources.profile_updated_successfully
 import physiquest.composeapp.generated.resources.settings
@@ -124,7 +128,8 @@ fun MainNavigation(
         }
     }
 
-    val screens = listOf(MainNavDestinations.Chat, MainNavDestinations.Settings)
+    val screens =
+        listOf(MainNavDestinations.Home, MainNavDestinations.Chat, MainNavDestinations.Settings)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -194,8 +199,160 @@ fun MainNavigation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = MainNavDestinations.Chat.route
+            startDestination = MainNavDestinations.Home.route
         ) {
+            composable(MainNavDestinations.Home.route) {
+                val physicsCalculatorViewModel = koinViewModel<PhysicsCalculatorViewModel>()
+                val physicsState by physicsCalculatorViewModel.state.collectAsStateWithLifecycle()
+                PhysicsCalculatorScreen(
+                    state = physicsState,
+                    onCalculationTypeSelected = { type ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnCalculationTypeSelected(type)
+                        )
+                    },
+                    onProjectileMotionCalculate = { initialVelocity, angle, height ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnProjectileMotionCalculate(
+                                initialVelocity = initialVelocity,
+                                angle = angle,
+                                height = height
+                            )
+                        )
+                    },
+                    onSHMCalculate = { amplitude, frequency, time, phase ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnSHMCalculate(
+                                amplitude = amplitude,
+                                frequency = frequency,
+                                time = time,
+                                phase = phase
+                            )
+                        )
+                    },
+                    onCircuitCalculate = { voltage, current, resistance ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnCircuitCalculate(
+                                voltage = voltage,
+                                current = current,
+                                resistance = resistance
+                            )
+                        )
+                    },
+                    onWaveCalculate = { frequency, wavelength, velocity ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnWaveCalculate(
+                                frequency = frequency,
+                                wavelength = wavelength,
+                                velocity = velocity
+                            )
+                        )
+                    },
+                    onKinematicsCalculate = { initialVelocity, finalVelocity, acceleration, time, displacement ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnKinematicsCalculate(
+                                initialVelocity = initialVelocity,
+                                finalVelocity = finalVelocity,
+                                acceleration = acceleration,
+                                time = time,
+                                displacement = displacement
+                            )
+                        )
+                    },
+                    onEnergyCalculate = { mass, velocity, height, force, distance ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnEnergyCalculate(
+                                mass = mass,
+                                velocity = velocity,
+                                height = height,
+                                force = force,
+                                distance = distance
+                            )
+                        )
+                    },
+                    onFluidCalculate = { pressure, density, velocity, area, viscosity ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnFluidCalculate(
+                                pressure = pressure,
+                                density = density,
+                                velocity = velocity,
+                                area = area,
+                                viscosity = viscosity
+                            )
+                        )
+                    },
+                    onRotationalCalculate = { torque, momentOfInertia, angularAcceleration, initialAngularVelocity, finalAngularVelocity, angularDisplacement, time, mass, radius ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnRotationalCalculate(
+                                torque = torque,
+                                momentOfInertia = momentOfInertia,
+                                angularAcceleration = angularAcceleration,
+                                initialAngularVelocity = initialAngularVelocity,
+                                finalAngularVelocity = finalAngularVelocity,
+                                angularDisplacement = angularDisplacement,
+                                time = time,
+                                mass = mass,
+                                radius = radius
+                            )
+                        )
+                    },
+                    onThermodynamicsCalculate = { pressure, volume, temperature, moles, heatCapacity, deltaTemp, workDone ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnThermodynamicsCalculate(
+                                pressure = pressure,
+                                volume = volume,
+                                temperature = temperature,
+                                numberOfMoles = moles,
+                                heatCapacity = heatCapacity,
+                                deltaTemperature = deltaTemp,
+                                workDone = workDone
+                            )
+                        )
+                    },
+                    onMagnetismCalculate = { magneticField, current, velocity, charge, length, area, noOfTurns, angle, smallRadius, mass ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnMagnetismCalculate(
+                                magneticField = magneticField,
+                                current = current,
+                                velocity = velocity,
+                                charge = charge,
+                                length = length,
+                                area = area,
+                                numberOfTurns = noOfTurns,
+                                angle = angle,
+                                smallRadius = smallRadius,
+                                mass = mass
+                            )
+                        )
+                    },
+                    onElectricityCalculate = { charge1, charge2, distance, electricField, potential, capacitance, voltage, area ->
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnElectricityCalculate(
+                                charge1 = charge1,
+                                charge2 = charge2,
+                                distance = distance,
+                                electricField = electricField,
+                                potential = potential,
+                                capacitance = capacitance,
+                                voltage = voltage,
+                                area = area
+                            )
+                        )
+                    },
+                    onClearResults = {
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnClearResults
+                        )
+                    },
+                    onSaveCalculation = {
+                        physicsCalculatorViewModel.onEvent(
+                            PhysicsCalculatorEvents.OnSaveCalculation(it)
+                        )
+                    },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+
             composable(MainNavDestinations.Chat.route) {
                 ChatListScreen(
                     state = chatState,
@@ -253,7 +410,23 @@ fun MainNavigation(
                     },
                     onBackPressed = {
                         navController.popBackStack()
-                    }
+                    },
+                    onImageSaveComplete = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Image saved successfully",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
+                    onImageSaveError = { errorMessage ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Error saving image: $errorMessage",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
                 )
             }
             composable(MainNavDestinations.Settings.route) {
@@ -324,9 +497,25 @@ fun MainNavigation(
 private fun getTopAppBar(screenRoute: String?) {
     screenRoute?.let { route ->
         when (route) {
+            MainNavDestinations.Home.route -> {
+                TopAppBar(
+                    title = {
+                        Text(
+                            stringResource(Res.string.home),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                )
+            }
+
             MainNavDestinations.Chat.route -> {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(Res.string.chats)) },
+                    title = {
+                        Text(
+                            stringResource(Res.string.chats),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
                 )
             }
 
@@ -335,7 +524,12 @@ private fun getTopAppBar(screenRoute: String?) {
             }
 
             MainNavDestinations.Settings.route -> {
-                TopAppBar(title = { Text(stringResource(Res.string.settings)) })
+                TopAppBar(title = {
+                    Text(
+                        stringResource(Res.string.settings),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                })
             }
         }
     }

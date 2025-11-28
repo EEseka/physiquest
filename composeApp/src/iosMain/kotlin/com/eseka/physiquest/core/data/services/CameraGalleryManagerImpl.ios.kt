@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.services
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.services.CameraGalleryManager
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -75,7 +75,7 @@ actual class CameraGalleryManagerImpl : CameraGalleryManager {
                 return "$documentsPath/$fileName"
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error creating temp photo URI: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error creating temp photo URI: ${e.message}" })
         }
         return null
     }
@@ -93,7 +93,7 @@ actual class CameraGalleryManagerImpl : CameraGalleryManager {
                 else -> "image/jpeg"
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Error getting MIME type: ${e.message}" })
+            log.e(tag = TAG, msg = { "Error getting MIME type: ${e.message}" })
             "image/jpeg"
         }
     }
@@ -110,5 +110,6 @@ actual class CameraGalleryManagerImpl : CameraGalleryManager {
 
     private companion object {
         private const val TAG = "CameraGalleryManager"
+        val log = logging()
     }
 }

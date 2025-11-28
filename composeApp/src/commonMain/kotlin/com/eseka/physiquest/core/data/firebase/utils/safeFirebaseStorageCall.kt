@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.firebase.utils
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.utils.FirebaseStorageError
 import com.eseka.physiquest.core.domain.utils.Result
 import dev.gitlive.firebase.FirebaseNetworkException
@@ -11,17 +11,19 @@ import kotlin.coroutines.coroutineContext
 private const val TAG = "safeFirebaseStorageCall"
 
 suspend fun <T> safeFirebaseStorageCall(execute: suspend () -> T): Result<T, FirebaseStorageError> {
+    val log = logging()
+
     return try {
         val result = execute()
         Result.Success(result)
     } catch (_: FirebaseNetworkException) {
         Result.Error(FirebaseStorageError.NETWORK_ERROR)
     } catch (e: IOException) {
-        Logger.e(tag = TAG, message = { "IO error during Firebase Storage operation: $e" })
+        log.e(tag = TAG, msg = { "IO error during Firebase Storage operation: $e" })
         Result.Error(FirebaseStorageError.IO_ERROR)
     } catch (e: Exception) {
         coroutineContext.ensureActive()
-        Logger.e(tag = TAG, message = { "Unexpected error during Firebase Storage operation: $e" })
+        log.e(tag = TAG, msg = { "Unexpected error during Firebase Storage operation: $e" })
         Result.Error(mapStorageException(e))
     }
 }

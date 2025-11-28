@@ -2,7 +2,7 @@ package com.eseka.physiquest.authentication.presentation.signin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.authentication.domain.UserAuthRepo
 import com.eseka.physiquest.authentication.domain.validation.ValidateEmail
 import com.eseka.physiquest.authentication.domain.validation.ValidateSignInPassword
@@ -52,7 +52,11 @@ class SignInViewModel(
                 _state.update { it.copy(forgotPasswordEmail = event.email.trim()) }
             }
 
-            is SignInEvents.OnSignInWithGoogleClicked -> signInWithGoogle(event.idToken, event.accessToken)
+            is SignInEvents.OnSignInWithGoogleClicked -> signInWithGoogle(
+                event.idToken,
+                event.accessToken
+            )
+
             SignInEvents.OnResendVerificationEmailClicked -> resendVerificationEmail()
             SignInEvents.OnSignInClicked -> validateAndSignIn()
             SignInEvents.OnEmailVerifiedClicked -> checkEmailVerification()
@@ -151,7 +155,7 @@ class SignInViewModel(
                     }
                 }
                 .onError { error ->
-                    Logger.w(tag = TAG, message = { "AuthError reloading user : $error" })
+                    log.w(tag = TAG, msg = { "AuthError reloading user : $error" })
                 }
         }
     }
@@ -160,7 +164,7 @@ class SignInViewModel(
     private fun resendVerificationEmail() {
         viewModelScope.launch {
             if (isEmailVerified) {
-                Logger.d(tag = TAG, message = { "User already verified. No need to resend email." })
+                log.d(tag = TAG, msg = { "User already verified. No need to resend email." })
                 return@launch
             }
             _state.update { it.copy(isLoading = true) }
@@ -194,9 +198,9 @@ class SignInViewModel(
             userAuthRepo.sendPasswordResetEmail(_state.value.forgotPasswordEmail)
                 .onSuccess {
                     // Shouldn't this be successful only if the account exists?
-                    Logger.d(
+                    log.d(
                         tag = TAG,
-                        message = { "Password reset email sent to ${_state.value.forgotPasswordEmail}" }
+                        msg = { "Password reset email sent to ${_state.value.forgotPasswordEmail}" }
                     )
                     _state.update { it.copy(isLoading = false, forgotPasswordEmailSent = true) }
                 }
@@ -231,5 +235,6 @@ class SignInViewModel(
 
     companion object {
         private const val TAG = "SignInViewModel"
+        val log = logging()
     }
 }

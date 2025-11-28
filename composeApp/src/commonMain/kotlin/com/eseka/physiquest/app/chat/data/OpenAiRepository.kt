@@ -1,6 +1,5 @@
 package com.eseka.physiquest.app.chat.data
 
-import co.touchlab.kermit.Logger
 import com.aallam.openai.api.audio.AudioResponseFormat
 import com.aallam.openai.api.audio.TranscriptionRequest
 import com.aallam.openai.api.chat.ChatCompletionRequest
@@ -16,6 +15,7 @@ import com.aallam.openai.api.image.ImageCreation
 import com.aallam.openai.api.image.ImageSize
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.client.OpenAI
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.app.chat.data.local.TrendingSearchDao
 import com.eseka.physiquest.app.chat.data.local.mappers.toTrendingSearch
 import com.eseka.physiquest.app.chat.data.local.mappers.toTrendingSearchEntity
@@ -67,27 +67,27 @@ class OpenAiRepository(
         }
 
     } catch (e: RateLimitException) {
-        Logger.e(tag = TAG, message = { "RateLimitException: ${e.message}" })
+        log.e(tag = TAG, msg = { "RateLimitException: ${e.message}" })
 //        Result.Success(flowOf(stringResource(Res.string.friendly_rate_limit_message)))
         Result.Success(flowOf("I'm currently experiencing high demand. Please try again in a moment."))
     } catch (e: InvalidRequestException) {
-        Logger.e(
+        log.e(
             tag = TAG,
-            message = { "InvalidRequestException: ${e.error.detail?.message ?: e.message}" })
+            msg = { "InvalidRequestException: ${e.error.detail?.message ?: e.message}" })
 //        Result.Success(flowOf(stringResource(Res.string.friendly_invalid_request_message)))
         Result.Success(flowOf("I couldn't process that request. Please try asking in a different way."))
     } catch (e: AuthenticationException) {
-        Logger.e(tag = TAG, message = { "AuthenticationException: ${e.message}" })
+        log.e(tag = TAG, msg = { "AuthenticationException: ${e.message}" })
 //        Result.Success(flowOf(stringResource(Res.string.friendly_service_error)))
         Result.Success(flowOf("I'm having trouble connecting to my services right now. Please try again later."))
     } catch (e: PermissionException) {
-        Logger.e(tag = TAG, message = { "PermissionException: ${e.message}" })
+        log.e(tag = TAG, msg = { "PermissionException: ${e.message}" })
         Result.Success(flowOf("I'm having trouble connecting to my services right now. Please try again later."))
     } catch (e: UnknownAPIException) {
-        Logger.e(tag = TAG, message = { "UnknownAPIException: ${e.message}" })
+        log.e(tag = TAG, msg = { "UnknownAPIException: ${e.message}" })
         Result.Success(flowOf("I'm having trouble connecting to my services right now. Please try again later."))
     } catch (e: Exception) {
-        Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+        log.e(tag = TAG, msg = { "Exception: ${e.message}" })
 //        Result.Success(flowOf(stringResource(Res.string.error_unknown)))
         Result.Success(flowOf("Something went wrong. Please try again later."))
     }
@@ -123,7 +123,7 @@ class OpenAiRepository(
                             ).toString()
                         }
                         .onError { error ->
-                            Logger.e(tag = TAG, message = { "Error compressing image: $error" })
+                            log.e(tag = TAG, msg = { "Error compressing image: $error" })
                         }
                 }
                 downloadedImageUrl?.let {
@@ -131,22 +131,22 @@ class OpenAiRepository(
                 } ?: emptyList()
             }
         } catch (e: RateLimitException) {
-            Logger.e(tag = TAG, message = { "RateLimitException: ${e.message}" })
+            log.e(tag = TAG, msg = { "RateLimitException: ${e.message}" })
             Result.Success(emptyList())
         } catch (e: InvalidRequestException) {
-            Logger.e(tag = TAG, message = { "InvalidRequestException: ${e.error.detail?.message}" })
+            log.e(tag = TAG, msg = { "InvalidRequestException: ${e.error.detail?.message}" })
             Result.Success(emptyList())
         } catch (e: AuthenticationException) {
-            Logger.e(tag = TAG, message = { "AuthenticationException: ${e.message}" })
+            log.e(tag = TAG, msg = { "AuthenticationException: ${e.message}" })
             Result.Success(emptyList())
         } catch (e: PermissionException) {
-            Logger.e(tag = TAG, message = { "PermissionException: ${e.message}" })
+            log.e(tag = TAG, msg = { "PermissionException: ${e.message}" })
             Result.Success(emptyList())
         } catch (e: UnknownAPIException) {
-            Logger.e(tag = TAG, message = { "UnknownAPIException: ${e.message}" })
+            log.e(tag = TAG, msg = { "UnknownAPIException: ${e.message}" })
             Result.Success(emptyList())
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+            log.e(tag = TAG, msg = { "Exception: ${e.message}" })
             Result.Success(emptyList())
         }
 
@@ -168,7 +168,7 @@ class OpenAiRepository(
             transcription.text
         }
     } catch (e: Exception) {
-        Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+        log.e(tag = TAG, msg = { "Exception: ${e.message}" })
         Result.Success("")
     }
 
@@ -187,7 +187,7 @@ class OpenAiRepository(
             // If not cached, fetch from OpenAI
             return fetchAndUpdateTrendingSearches()
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+            log.e(tag = TAG, msg = { "Exception: ${e.message}" })
             return Result.Success(emptyList())
         }
     }
@@ -215,7 +215,7 @@ class OpenAiRepository(
                     .removePrefix("\"").removeSuffix("\"")
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+            log.e(tag = TAG, msg = { "Exception: ${e.message}" })
             Result.Error(DataError.Remote.UNKNOWN)
         }
 
@@ -253,7 +253,7 @@ class OpenAiRepository(
                 dao.getTrendingSearches()?.toTrendingSearch() ?: emptyList()
             }
         } catch (e: Exception) {
-            Logger.e(tag = TAG, message = { "Exception: ${e.message}" })
+            log.e(tag = TAG, msg = { "Exception: ${e.message}" })
             Result.Success(
                 listOf(
                     "Technology trends",
@@ -306,6 +306,7 @@ class OpenAiRepository(
         private const val TAG = "OpenAiRepository"
         private const val ONE_DAY_IN_MILLIS = 24 * 60 * 60 * 1000L
         private const val MAX_IMAGE_SIZE = 1024 * 1024L // 1MB
+        val log = logging()
     }
 }
 

@@ -9,7 +9,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eseka.physiquest.core.data.services.ImageGalleryManagerImpl
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 actual fun SaveImageToGalleryHandler(
@@ -27,31 +29,36 @@ actual fun SaveImageToGalleryHandler(
         onClick = {
             scope.launch {
                 onSaveStarted()
+                // First, check if we already have permission. If not, request it.
+                val hasPermission =
+                    galleryManager.hasWritePermission() || galleryManager.requestWritePermission()
 
-                if (!galleryManager.hasWritePermission()) {
-                    val permissionGranted = galleryManager.requestWritePermission()
-                    if (!permissionGranted) {
-                        onError("Photo library permission denied")
-                        onSaveComplete()
-                        return@launch
+                if (hasPermission) {
+                    galleryManager.saveImageToGallery(imageUri)
+                        .onSuccess {
+                            // Ensure UI updates are on the main thread
+                            withContext(Dispatchers.Main) {
+                                onSaveComplete()
+                            }
+                        }
+                        .onFailure { e ->
+                            withContext(Dispatchers.Main) {
+                                onError(e.message ?: "Failed to save image")
+                            }
+                        }
+                } else {
+                    // Handle the case where permission is denied
+                    withContext(Dispatchers.Main) {
+                        onError("Photo library permission denied.")
                     }
                 }
-
-                galleryManager.saveImageToGallery(imageUri)
-                    .onSuccess {
-                        onSaveComplete()
-                    }
-                    .onFailure { e ->
-                        onError(e.message ?: "Failed to save image")
-                        onSaveComplete()
-                    }
             }
         },
         modifier = modifier
     ) {
         Icon(
             imageVector = saveIcon,
-            contentDescription = null,
+            contentDescription = "Save Image", // Added for accessibility
             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
     }

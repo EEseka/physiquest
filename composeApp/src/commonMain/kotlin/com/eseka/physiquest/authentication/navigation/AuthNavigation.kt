@@ -19,7 +19,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.authentication.presentation.AuthEvent
 import com.eseka.physiquest.authentication.presentation.AuthEventBus
 import com.eseka.physiquest.authentication.presentation.signin.ResetPasswordEmailSentScreen
@@ -58,6 +58,8 @@ fun AuthNavigation(
     authEventBus: AuthEventBus = koinInject(),
     onNavigateToHome: () -> Unit
 ) {
+    val log = logging()
+
     val signUpState by signUpViewModel.state.collectAsStateWithLifecycle()
     val signInState by signInViewModel.state.collectAsStateWithLifecycle()
 
@@ -133,7 +135,7 @@ fun AuthNavigation(
             WelcomeUiState.NotAuthenticated -> AuthNavDestinations.SignIn.route
             WelcomeUiState.Initial -> {
                 // This state should be rare, so we add some logging just in case
-                Logger.w(tag = TAG, message = { "Unexpected Initial state in Splash screen" })
+                log.w(tag = TAG, msg = { "Unexpected Initial state in Splash screen" })
                 AuthNavDestinations.Welcome.route
             }
 

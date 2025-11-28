@@ -1,6 +1,6 @@
 package com.eseka.physiquest.core.data.firebase.utils
 
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.core.domain.utils.FirebaseAuthError
 import com.eseka.physiquest.core.domain.utils.Result
 import dev.gitlive.firebase.FirebaseNetworkException
@@ -9,6 +9,7 @@ import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 
 private const val TAG = "safeFirebaseAuthCall"
+private val log = logging()
 
 suspend fun <T> safeFirebaseAuthCall(execute: suspend () -> T): Result<T, FirebaseAuthError> {
     return try {
@@ -20,7 +21,7 @@ suspend fun <T> safeFirebaseAuthCall(execute: suspend () -> T): Result<T, Fireba
         Result.Error(FirebaseAuthError.NETWORK_ERROR)
     } catch (e: Exception) {
         coroutineContext.ensureActive()
-        Logger.e(tag = TAG, message = { "An unexpected error occurred: $e" })
+        log.e(tag = TAG, msg = { "An unexpected error occurred: $e" })
         Result.Error(FirebaseAuthError.UNKNOWN)
     }
 }
@@ -53,7 +54,7 @@ private fun mapFirebaseAuthException(e: FirebaseAuthException): FirebaseAuthErro
         "credential is malformed or has expired." in message -> FirebaseAuthError.INVALID_CREDENTIAL
         "invalid password" in message -> FirebaseAuthError.WRONG_PASSWORD
         else -> {
-            Logger.w(tag = TAG, message = { "Unhandled exception message: $message" })
+            log.w(tag = TAG, msg = { "Unhandled exception message: $message" })
             FirebaseAuthError.UNKNOWN
         }
     }

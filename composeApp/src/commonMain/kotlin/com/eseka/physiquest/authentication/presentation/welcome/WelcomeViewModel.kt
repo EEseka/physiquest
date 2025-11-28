@@ -2,7 +2,7 @@ package com.eseka.physiquest.authentication.presentation.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
+import com.diamondedge.logging.logging
 import com.eseka.physiquest.authentication.domain.CheckFirstInstallUseCase
 import com.eseka.physiquest.authentication.domain.UserAuthRepo
 import com.eseka.physiquest.authentication.presentation.AuthEvent
@@ -73,10 +73,10 @@ class WelcomeViewModel(
     }
 
     private fun handleUnexpectedException(exception: Throwable) {
-        Logger.e(
+        log.e(
             tag = TAG,
-            message = { "Unexpected error in authentication flow" },
-            throwable = exception
+            msg = { "Unexpected error in authentication flow" },
+            err = exception
         )
         viewModelScope.launch {
             _uiState.update { WelcomeUiState.Error }
@@ -95,5 +95,6 @@ class WelcomeViewModel(
 
     companion object {
         private const val TAG = "WelcomeViewModel"
+        val log = logging()
     }
 }
